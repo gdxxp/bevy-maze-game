@@ -79,6 +79,6 @@ pub fn cleanup_ground(
     }
 
     for (exit_entity, _) in & mut exit {
-        commands.entity(exit_entity).despawn();
+        commands.entity(exit_entity).despawn_recursive();
     }
 }
