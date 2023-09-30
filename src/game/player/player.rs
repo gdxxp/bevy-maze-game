@@ -44,7 +44,7 @@ pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..default()
             },
             Player {
-                speed: 300.0,
+                speed: 100.0,
                 run_rate: 2.0,
             },
             Name::new("Player"),

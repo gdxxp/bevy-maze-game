@@ -21,9 +21,8 @@ impl Plugin for GamePlugin {
             .register_type::<Distance>()
             .add_plugins(GroundPlugin)
             .add_plugins(PlayerPlugin)
-            .add_plugins((
-                RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0),
-                RapierDebugRenderPlugin::default(),));
+            .add_plugins(
+                RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0),);
     }
 }
 
