@@ -5,13 +5,29 @@ use bevy_inspector_egui::InspectorOptions;
 use bevy_rapier2d::prelude::*;
 use rand::{thread_rng, Rng};
 
-use crate::game::ground::ground::GroundSize;
+use crate::game::{ground::ground::GroundSize, resource::Distance, GameState};
 
 #[derive(Component, InspectorOptions, Default, Reflect)]
 #[reflect(Component, InspectorOptions)]
 pub struct Player {
     pub speed: f32,
     pub run_rate: f32,
+    pub energy: f32,
+    pub max_energy: f32,
+}
+
+impl Player {
+    fn energy_lose(&mut self, consume: f32) {
+        self.energy -= consume;
+    }
+
+    fn set_max_energy(&mut self) {
+        self.energy = self.max_energy;
+    }
+
+    pub fn energy_gain(&mut self, gain: f32) {
+        self.energy += gain;
+    }
 }
 
 #[derive(Component, InspectorOptions, Default, Reflect)]
@@ -46,6 +62,8 @@ pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             Player {
                 speed: 100.0,
                 run_rate: 2.0,
+                energy: 150.0,
+                max_energy: 150.0,
             },
             Name::new("Player"),
             RigidBody::Dynamic,
@@ -58,9 +76,9 @@ pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 pub fn player_movement(
     keyboard_input: Res<Input<KeyCode>>,
-    mut player_info: Query<(&Player, &mut Velocity)>,
+    mut player_info: Query<(&mut Player, &mut Velocity)>,
 ) {
-    for (player, mut rb_vels) in &mut player_info {
+    for (mut player, mut rb_vels) in &mut player_info {
         let up = keyboard_input.any_pressed([KeyCode::W, KeyCode::Up]);
         let down = keyboard_input.any_pressed([KeyCode::S, KeyCode::Down]);
         let left = keyboard_input.any_pressed([KeyCode::A, KeyCode::Left]);
@@ -73,6 +91,12 @@ pub fn player_movement(
         let mut move_delta = Vec2::new(x_axis as f32, y_axis as f32);
         if move_delta != Vec2::ZERO {
             move_delta /= move_delta.length();
+            if run {
+                player.energy_lose(0.02);
+            }
+            else {
+                player.energy_lose(0.01);
+            }
         }
 
         // Update the velocity on the rigid_body_component,
@@ -121,3 +145,20 @@ pub fn player_transmission(
 
     player.single_mut().translation = Vec3::new(start_x, start_y, 1.0);
 }
+
+pub fn energy_check(
+    mut player: Query<&mut Player>,
+    mut distance: ResMut<Distance>,
+    mut next_state: ResMut<NextState<GameState>>  
+  ) {
+    let mut player = player.single_mut();
+
+    if player.energy < 0.0 {
+        distance.0 = 2000;
+        next_state.set(GameState::LoadGame);
+        player.set_max_energy();
+    }
+    else if player.energy > player.max_energy {
+        player.set_max_energy();
+    }
+  }

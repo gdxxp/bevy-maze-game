@@ -1,16 +1,16 @@
-use crate::game::resource::Distance;
+use crate::game::{resource::Distance, player::player::Player};
 
 use bevy::prelude::*;
 
 pub struct GameUI;
 
 #[derive(Component)]
-pub struct DistanceText;
+pub struct EnergyText;
 
 impl Plugin for GameUI {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_game_ui)
-            .add_systems(Update, update_money_ui);
+            .add_systems(Update, update_energy_ui);
     }
 }
 
@@ -35,19 +35,19 @@ fn spawn_game_ui(mut commands: Commands) {
                     text: Text::from_section(
                         "Distance",
                         TextStyle {
-                            font_size: 32.0,
+                            font_size: 16.0,
                             ..default()
                         },
                     ),
                     ..default()
                 },
-                DistanceText,
+                EnergyText,
             ));
         });
 }
 
-fn update_money_ui(mut texts: Query<&mut Text, With<DistanceText>>, distance: Res<Distance>) {
+fn update_energy_ui(mut texts: Query<&mut Text, With<EnergyText>>, player: Query<&Player, With<Player>>) {
     for mut text in &mut texts {
-        text.sections[0].value = format!("Distance: {:?} km", distance.0);
+        text.sections[0].value = format!("Energy: {:?} ", player.single().energy as i16);
     }
 }

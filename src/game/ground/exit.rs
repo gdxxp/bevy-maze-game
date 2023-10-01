@@ -78,7 +78,7 @@ pub fn cleanup_ground(
         commands.entity(wall_entity).despawn_recursive();
     }
 
-    for (exit_entity, _) in & mut exit {
+    for (exit_entity, _) in &mut exit {
         commands.entity(exit_entity).despawn_recursive();
     }
 }
