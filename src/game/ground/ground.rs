@@ -73,8 +73,6 @@ fn gen_jungle(mut commands: Commands, asset_server: Res<AssetServer>, size: i16)
         }
     }
 
-    println!("jungle finished!");
-
     gen_boundary(commands, asset_server, size);
 }
 

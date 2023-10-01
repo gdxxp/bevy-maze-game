@@ -164,9 +164,6 @@ fn create_path(grid_h: &mut Vec<Vec<bool>>, grid_v: &mut Vec<Vec<bool>>, start: 
         }
     }
 
-    if current == end {
-        println!("bingo! loop reaches end!");
-    }
     grid_h[current.0][current.1] = false;
     grid_v[current.0][current.1] = false;
 }
