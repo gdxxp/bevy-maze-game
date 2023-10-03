@@ -19,6 +19,8 @@ impl Plugin for GamePlugin {
             .register_type::<Money>()
             .insert_resource(Distance(2000))
             .register_type::<Distance>()
+            .insert_resource(CurrentGrid(vec![vec![]]))
+            .register_type::<CurrentGrid>()
             .add_plugins(GroundPlugin)
             .add_plugins(PlayerPlugin)
             .add_plugins(

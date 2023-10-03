@@ -6,6 +6,7 @@ use rand::prelude::*;use bevy::utils::HashSet;
 use std::collections::VecDeque;
 
 use crate::game::player::player::Player;
+use crate::game::resource::CurrentGrid;
 use super::exit::Exit;
 use crate::ground::GroundSize;
 use crate::GameState;
@@ -21,6 +22,7 @@ pub fn gen_obstacle(
     exit: Query<(&Transform, &Exit)>,
     player: Query<&Transform, With<Player>>,
     size: Res<GroundSize>,
+    current_grid: ResMut<CurrentGrid>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
     let size = size.0 + 1;
@@ -54,7 +56,7 @@ pub fn gen_obstacle(
     let exit_x = ((size * 100 / 2 + exit_translation.x as i16) / ROAD_SPACE) as usize;
     let exit_y = ((size * 100 / 2 - exit_translation.y as i16) / ROAD_SPACE) as usize;
 
-    create_path(&mut grid_h, &mut grid_v, (start_x, start_y), (exit_x, exit_y));
+    create_path(&mut grid_h, &mut grid_v, (start_x, start_y), (exit_x, exit_y), current_grid);
     
     for i in 0..grid_size {
         for j in 0..grid_size {
@@ -103,25 +105,25 @@ pub fn gen_obstacle(
     next_state.set(GameState::InGame);
 }
 
-fn create_path(grid_h: &mut Vec<Vec<bool>>, grid_v: &mut Vec<Vec<bool>>, start: (usize, usize), end: (usize, usize)) {
+fn create_path(grid_h: &mut Vec<Vec<bool>>, grid_v: &mut Vec<Vec<bool>>, start: (usize, usize), end: (usize, usize), mut current_grid: ResMut<CurrentGrid>) {
 
     let directions = [(0, -1), (0, 1), (1, 0), (-1, 0)];
     let mut rng = thread_rng();
 
     let mut current = start;
-    let mut current_grid;
+    let mut chosen_grid;
     let mut path_set = HashSet::new();
     let mut path_stack = VecDeque::new();
     if rng.gen_bool(0.5) {
-        current_grid = grid_h.clone();
+        chosen_grid = grid_h.clone();
     } else {
-        current_grid = grid_v.clone();
+        chosen_grid = grid_v.clone();
     }
 
     while current != end {
         grid_h[current.0][current.1] = false;
         grid_v[current.0][current.1] = false;
-        current_grid[current.0][current.1] = false;
+        chosen_grid[current.0][current.1] = false;
         let mut valid_neighbors = vec![];
         let mut unvisited_neighbors = vec![];
 
@@ -135,8 +137,8 @@ fn create_path(grid_h: &mut Vec<Vec<bool>>, grid_v: &mut Vec<Vec<bool>>, start: 
 
             let neighbor = (neighbor.0 as usize, neighbor.1 as usize);
 
-            if is_valid_index(&current_grid, neighbor, &path_set,) {
-                if current_grid[neighbor.0][neighbor.1] == false {
+            if is_valid_index(&chosen_grid, neighbor, &path_set,) {
+                if chosen_grid[neighbor.0][neighbor.1] == false {
                     valid_neighbors.push(neighbor)
                 } else {
                     unvisited_neighbors.push(neighbor)
@@ -166,6 +168,7 @@ fn create_path(grid_h: &mut Vec<Vec<bool>>, grid_v: &mut Vec<Vec<bool>>, start: 
 
     grid_h[current.0][current.1] = false;
     grid_v[current.0][current.1] = false;
+    current_grid.0 = chosen_grid;
 }
 
 fn is_valid_index(grid: &Vec<Vec<bool>>,  index: (usize, usize), path_set: &HashSet<(usize, usize)>) -> bool {
