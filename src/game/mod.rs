@@ -1,6 +1,7 @@
 pub mod player;
 pub mod ground;
 pub mod resource;
+pub mod enemy;
 
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -8,6 +9,8 @@ use bevy_rapier2d::prelude::*;
 use player::PlayerPlugin;
 use ground::GroundPlugin;
 use resource::*;
+
+use self::enemy::EnemyPlugin;
 
 pub struct GamePlugin;
 
@@ -23,6 +26,7 @@ impl Plugin for GamePlugin {
             .register_type::<CurrentGrid>()
             .add_plugins(GroundPlugin)
             .add_plugins(PlayerPlugin)
+            .add_plugins(EnemyPlugin)
             .add_plugins(
                 RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0),);
     }

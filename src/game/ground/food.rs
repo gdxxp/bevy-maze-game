@@ -36,7 +36,7 @@ pub fn gen_berry(
                     ..default()
                 },
                 Berry {
-                    energy: rng.gen_range(3.0..=10.0),
+                    energy: rng.gen_range(5.0..=10.0),
                 },
                 Name::new("Berry"),
                 Collider::cuboid(2.5, 2.5),
@@ -55,9 +55,10 @@ pub fn eat_berry(
     for event in ce.iter() {
         if let CollisionEvent::Started(e1, e2, _) = event {
             let (player_entity, berry_entity) = (*e1, *e2);
-            let (mut player, berry) = (player.get_mut(player_entity).unwrap(), berry.get(berry_entity).unwrap());
-            player.energy_gain(berry.energy);
-            commands.entity(berry_entity).despawn_recursive();
+            if let (Some(mut player), Some(berry)) = (player.get_mut(player_entity).ok(), berry.get(berry_entity).ok()) {
+                player.energy_gain(berry.energy);
+                commands.entity(berry_entity).despawn_recursive();
+            }
         }
     }
 }

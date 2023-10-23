@@ -35,7 +35,7 @@ fn spawn_game_ui(mut commands: Commands) {
                     text: Text::from_section(
                         "Distance",
                         TextStyle {
-                            font_size: 16.0,
+                            font_size: 20.0,
                             ..default()
                         },
                     ),

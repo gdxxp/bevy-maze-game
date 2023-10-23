@@ -17,7 +17,7 @@ pub struct Player {
 }
 
 impl Player {
-    fn energy_lose(&mut self, consume: f32) {
+    pub fn energy_lose(&mut self, consume: f32) {
         self.energy -= consume;
     }
 
